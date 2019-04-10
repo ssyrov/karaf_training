@@ -17,7 +17,7 @@
 		<db.host>localhost</db.host>
 		<db.port>5432</db.port>
 		<db.user>postgres</db.user>
-		<db.password>admin</db.password>
+		<db.password>232323re</db.password>
 		<db.name>postgres</db.name>
 	</properties>
 	
@@ -70,7 +70,8 @@
             <type>xml</type>
             <scope>runtime</scope>
         </dependency>
-    </dependencies>
+
+	</dependencies>
 	
 	<build>
 		<resources>

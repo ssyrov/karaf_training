@@ -8,7 +8,8 @@ import ru.training.karaf.model.User;
 
 public interface UserRepo {
     List<? extends User> getAll();
-    void create(String login, String firstName, String lastName, String address, Integer age, Set<String> properties);
+    void create(String login, String firstName, String lastName, String address, Integer age, Set<String> properties, String password, boolean admin, int count);
     Optional<? extends User> get(String login);
     void delete(String login);
+    void updateCount(String usr);
 }

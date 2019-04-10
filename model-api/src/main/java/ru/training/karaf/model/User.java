@@ -9,4 +9,7 @@ public interface User {
     Integer getAge();
     String getAddress();
     Set<String> getProperties();
+    String getPassword();
+    boolean isAdmin();
+    int getCountBooks();
 }

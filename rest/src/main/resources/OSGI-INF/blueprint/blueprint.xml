@@ -4,17 +4,26 @@
 >
 
     <reference id="userRepo" interface="ru.training.karaf.repo.UserRepo"/>
+    <reference id="bookRepo" interface="ru.training.karaf.repo.BookRepo"/>
 
+    <bean id="bookRestServiceBean" class="ru.training.karaf.rest.BookRestServiceImpl">
+        <property name="bookRepo"  ref="bookRepo"/>
+        <property name="userRepo"  ref="userRepo"/>
+    </bean>
     <bean id="userRestServiceBean" class="ru.training.karaf.rest.UserRestServiceImpl">
         <property name="repo"  ref="userRepo"/>
+    </bean>
+    <bean id="authRestServiceBean" class="ru.training.karaf.rest.AuthRestServiceImpl">
     </bean>
 
     <!-- CXF -->
     <jaxrs:server id="restServer" address="/rest">
         <jaxrs:serviceBeans>
             <ref component-id="userRestServiceBean"/>
+            <ref component-id="bookRestServiceBean"/>
+            <ref component-id="authRestServiceBean"/>
         </jaxrs:serviceBeans>
-                <jaxrs:providers>
+        <jaxrs:providers>
             <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
             <bean class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper"/>
         </jaxrs:providers>
