@@ -1,16 +1,8 @@
 package ru.training.karaf.model;
 
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Set;
-
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
@@ -40,6 +32,9 @@ public class UserDO {
     @Column(name = "adm")
     private boolean admin;
 
+    @OneToMany(mappedBy = "usr", fetch = FetchType.EAGER)
+    private Collection<BookDO> books;
+
     @Column(name = "count_books")
     private int countBooks;
 
@@ -49,6 +44,7 @@ public class UserDO {
     private Set<String> properties;
 
     public UserDO() {}
+
 
     public Long getId() {
         return id;
@@ -115,6 +111,14 @@ public class UserDO {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public Collection<BookDO> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Collection<BookDO> books) {
+        this.books = books;
     }
 
     @Override

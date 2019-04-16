@@ -1,6 +1,8 @@
 package ru.training.karaf.rest.book;
 
 import ru.training.karaf.rest.book.dto.BookDTO;
+import ru.training.karaf.rest.book.dto.BookDescriptionDTO;
+import ru.training.karaf.rest.book.dto.BookPriceDTO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -28,4 +30,13 @@ public interface BookRestService {
     @GET
     @Path("users/{usr}")
     List<BookDTO> getByUsr(@PathParam("usr") String usr);
+
+    @POST
+    @Path("{id}")
+    void addDescription(@PathParam("id") long idBook, BookDescriptionDTO description);
+
+    @GET
+    @Path("{id}/history")
+    List<BookPriceDTO> getPrices(@PathParam("id") long bookId);
+
 }

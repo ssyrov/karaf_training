@@ -17,8 +17,8 @@
 		<db.host>localhost</db.host>
 		<db.port>5432</db.port>
 		<db.user>postgres</db.user>
-		<db.password>232323re</db.password>
-		<db.name>postgres</db.name>
+		<db.password>admin</db.password>
+		<db.name>karaf</db.name>
 	</properties>
 	
 	<dependencies>

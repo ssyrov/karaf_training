@@ -1,36 +1,74 @@
 package ru.training.karaf.model;
 
+import ru.training.karaf.converter.ColorConverter;
+
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @NamedQueries({
         @NamedQuery(name = BookDO.GET_ALL, query = "SELECT b FROM BookDO AS b"),
         @NamedQuery(name = BookDO.GET_BY_ID, query = "SELECT b FROM BookDO AS b WHERE b.id = :id"),
+        @NamedQuery(name = BookDO.GET_ALL_WHERE_IN_AUTHORS, query = "SELECT b FROM BookDO AS b WHERE b.name IN :books"),
         @NamedQuery(name = BookDO.DELETE_BY_NAME, query = "DELETE FROM BookDO AS b WHERE b.name = :name"),
-        @NamedQuery(name = BookDO.GET_ALL_BY_USR, query = "SELECT b FROM BookDO AS b WHERE b.usr = :usr")
+        @NamedQuery(name = BookDO.GET_ALL_BY_USR, query = "SELECT b FROM BookDO AS b WHERE b.usr = :usr"),
+        @NamedQuery(name = BookDO.GET_BY_NAME, query = "SELECT b FROM BookDO AS b WHERE b.name = :name"),
+        //@NamedQuery(name = BookDO.GET_BY_NAME_AND_AUTHOR, query = "SELECT b FROM BookDO AS b WHERE b.name = :name AND b.authors.getByName = :author")
+        @NamedQuery(name = BookDO.GET_BY_NAME_AND_AUTHOR, query = "SELECT b FROM BookDO AS b JOIN b.authors a WHERE a.name = :author AND b.name = :name")
 })
 public class BookDO {
     public static final String GET_ALL = "Books.getAll";
     public static final String GET_BY_ID = "Books.getById";
     public static final String DELETE_BY_NAME = "Books.deleteByName";
     public static final String GET_ALL_BY_USR = "Books.getAllByUsr";
+    public static final String GET_BY_NAME = "Books.getByName";
+    public static final String GET_ALL_WHERE_IN_AUTHORS = "Books.getAllWhereInAuthors";
+    public static final String GET_BY_NAME_AND_AUTHOR = "Books.getByNameAndAuthor";
 
     @Id
     @GeneratedValue
     private Long id;
+
     @Column(name = "name")
     private String name;
-    @Column(name = "usr")
-    private String usr;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "usr_id")
+    private UserDO usr;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_description")
+    private BookDescriptionDo descriptionDo;
+
+    @Convert(converter = ColorConverter.class)
+    @Column(name = "color")
+    private Color color;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "author_book",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private Collection<AuthorDo> authors;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
+    //@OrderColumn(name = "date")
+    private List<BookPriceDO> prices;
 
     public BookDO() {}
 
-    public Long getId() {
-        return id;
+    public Collection<AuthorDo> getAuthors() {
+        return authors;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAuthors(Collection<AuthorDo> authors) {
+        this.authors = authors;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -41,12 +79,32 @@ public class BookDO {
         this.name = name;
     }
 
-    public String getUsr() {
+    public UserDO getUsr() {
         return usr;
     }
 
-    public void setUsr(String usr) {
+    public void setUsr(UserDO usr) {
         this.usr = usr;
+    }
+
+    public BookDescriptionDo getDescriptionDo() {
+        return descriptionDo;
+    }
+
+    public void setDescriptionDo(BookDescriptionDo descriptionDo) {
+        this.descriptionDo = descriptionDo;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public List<BookPriceDO> getPrice() {
+        return prices;
     }
 
     /*

@@ -41,5 +41,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.9.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.4" level="project" />
+    <orderEntry type="module" module-name="mqtt" scope="RUNTIME" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1" level="project" />
   </component>
 </module>

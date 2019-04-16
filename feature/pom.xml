@@ -27,6 +27,11 @@
 			<groupId>ru.training</groupId>
 			<artifactId>rest</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>ru.training</groupId>
+			<artifactId>mqtt</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<build>

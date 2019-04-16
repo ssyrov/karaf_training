@@ -7,10 +7,26 @@
     <bean id="userRepo" class="ru.training.karaf.repo.UserRepoImpl">
         <argument ref="jpaTemplate"/>
     </bean>
+
+    <bean id="requestLogRepo" class="ru.training.karaf.repo.RequestLogRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="authorRepo" class="ru.training.karaf.repo.AuthorRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
     <bean id="bookRepo" class="ru.training.karaf.repo.BookRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="bookDescriptionRepo" class="ru.training.karaf.repo.BookDescriptionRepoImpl">
         <argument ref="jpaTemplate"/>
     </bean>
     <service ref="userRepo" interface="ru.training.karaf.repo.UserRepo"/> <!--export-->
     <service ref="bookRepo" interface="ru.training.karaf.repo.BookRepo"/> <!--export-->
+    <service ref="bookDescriptionRepo" interface="ru.training.karaf.repo.BookDescriptionRepo"/> <!--export-->
+    <service ref="authorRepo" interface="ru.training.karaf.repo.AuthorRepo"/> <!--export-->
+    <service ref="requestLogRepo" interface="ru.training.karaf.repo.RequestLogRepo"/> <!--export-->
 
 </blueprint>

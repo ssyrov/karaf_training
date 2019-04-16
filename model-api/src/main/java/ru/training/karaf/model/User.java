@@ -1,5 +1,6 @@
 package ru.training.karaf.model;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface User {
@@ -12,4 +13,5 @@ public interface User {
     String getPassword();
     boolean isAdmin();
     int getCountBooks();
+    Collection<Book> getBooks();
 }

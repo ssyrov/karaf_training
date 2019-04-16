@@ -1,14 +1,14 @@
 package ru.training.karaf.repo;
 
 import org.apache.aries.jpa.template.JpaTemplate;
-import ru.training.karaf.model.Book;
-import ru.training.karaf.model.BookDO;
+import ru.training.karaf.model.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BookRepoImpl implements BookRepo {
     private JpaTemplate template;
@@ -27,12 +27,29 @@ public class BookRepoImpl implements BookRepo {
     }
 
     @Override
-    public void create(String name, String usr) {
+    public void create(String name, String usr, int price, int red, int green, int blue, int alpha, Collection<String> authors) {
         BookDO bookToCreate = new BookDO();
+        ColorImpl color = new ColorImpl(red, green, blue, alpha);
         bookToCreate.setName(name);
-        bookToCreate.setUsr(usr);
-        template.tx(em -> em.persist(bookToCreate));
+        bookToCreate.setColor(color);
+
+
+        /*BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
+        long l = bookPriceRepo.create(price);
+        bookToCreate.getPrice().add(template.txExpr(em -> em.find(BookPriceDO.class, l)));*/
+
+        bookToCreate.setAuthors(template.txExpr(em -> em.createNamedQuery(AuthorDo.GET_WHERE_IN, AuthorDo.class).setParameter("authors", authors)
+                .getResultList()));
+
+        UserDO userDO = template.txExpr(em -> em.createNamedQuery(UserDO.GET_BY_LOGIN, UserDO.class).setParameter("login", usr).getSingleResult());
+        bookToCreate.setUsr(userDO);
+
+        Long id = template.txExpr(em -> em.merge(bookToCreate)).getId();
+        BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
+        bookPriceRepo.create(price, id);
+
     }
+
 
     @Override
     public Optional<Book> get(long id) {
@@ -60,6 +77,37 @@ public class BookRepoImpl implements BookRepo {
             return Optional.empty();
         }
     }
+
+    @Override
+    public void changePrice(String name, String author, int price) {
+        Optional<BookDO> bookDO = template.txExpr(em -> getByNameAndAuthor(em, name, author));
+        if (bookDO.isPresent()) {
+            BookDO book = bookDO.get();
+            BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
+            bookPriceRepo.create(price, book.getId());
+        } else {
+            RequestLogRepoImpl requestLogRepo = new RequestLogRepoImpl(template);
+            requestLogRepo.add(name, author, price);
+        }
+
+    }
+
+    @Override
+    public List<BookPrice> getPrices(long bookId) {
+        BookPriceRepoImpl repo = new BookPriceRepoImpl(template);
+        return repo.getByBook(bookId);
+    }
+
+    private Optional<BookDO> getByNameAndAuthor(EntityManager em, String name, String author) {try {
+        return Optional.of(em.createNamedQuery(BookDO.GET_BY_NAME_AND_AUTHOR, BookDO.class)
+                .setParameter("name", name)
+                .setParameter("author", author)
+                .getSingleResult());
+    } catch (NoResultException e) {
+        return Optional.empty();
+    }
+
+    }
 }
 
 class BookImpl implements Book {
@@ -75,12 +123,54 @@ class BookImpl implements Book {
     }
 
     @Override
+    public long getId() {
+        return bookDO.getId();
+    }
+
+    @Override
     public String getName() {
         return bookDO.getName();
     }
 
     @Override
     public String getUsr() {
-        return bookDO.getUsr();
+        return bookDO.getUsr().getLogin();
+    }
+
+    @Override
+    public BookDescription getBookDescription() {
+        BookDescriptionImpl desc = new BookDescriptionImpl(bookDO.getDescriptionDo());
+        //opt
+        return desc; //?
+    }
+
+    @Override
+    public Color getColor() {
+        return bookDO.getColor();
+    }
+
+    @Override
+    public Collection<String> getAuthorNames() {
+        return bookDO.getAuthors().stream().map(AuthorImpl::new).map(a -> a.getName()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Author> getAuthors() {
+        return bookDO.getAuthors().stream().map(AuthorImpl::new).collect(Collectors.toList());
+    }
+    @Override
+    public <T> T unWrap(Class<T> clazz) {
+        if (clazz == BookDO.class) {
+            return (T) bookDO;
+        }
+        return null;
+        //throw new NoSuchFieldException("");
+    }
+
+    @Override
+    public int getPrice() {
+        Optional<BookPriceDO> bookPriceDO = bookDO.getPrice().stream().max(Comparator.comparing(o -> (int) o.getId()));
+        return bookPriceDO.get().getPrice();
+
     }
 }

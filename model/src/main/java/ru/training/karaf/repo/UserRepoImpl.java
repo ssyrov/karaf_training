@@ -1,5 +1,6 @@
 package ru.training.karaf.repo;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -10,6 +11,8 @@ import javax.persistence.NoResultException;
 
 import org.apache.aries.jpa.template.JpaTemplate;
 
+import ru.training.karaf.model.Book;
+import ru.training.karaf.model.BookDO;
 import ru.training.karaf.model.User;
 import ru.training.karaf.model.UserDO;
 
@@ -61,6 +64,9 @@ public class UserRepoImpl implements UserRepo {
             })
         );
     }
+
+
+
 
     private Optional<UserDO> getByLogin(String login, EntityManager em) {
         try {
@@ -126,6 +132,12 @@ class UserImpl implements User{
     public int getCountBooks() {
         return userDO.getCountBooks();
     }
+
+    @Override
+    public Collection<Book> getBooks() {
+        return userDO.getBooks().stream().map(BookImpl::new).collect(Collectors.toList()); //?
+    }
+
 
     UserDO getDO(){
         return userDO;
