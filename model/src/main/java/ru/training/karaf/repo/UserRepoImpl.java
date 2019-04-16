@@ -1,5 +1,6 @@
 package ru.training.karaf.repo;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -10,6 +11,8 @@ import javax.persistence.NoResultException;
 
 import org.apache.aries.jpa.template.JpaTemplate;
 
+import ru.training.karaf.model.Book;
+import ru.training.karaf.model.BookDO;
 import ru.training.karaf.model.User;
 import ru.training.karaf.model.UserDO;
 
@@ -25,11 +28,11 @@ public class UserRepoImpl implements UserRepo {
         return template.txExpr(em -> em.createNamedQuery(UserDO.GET_ALL, UserDO.class).getResultList())
                 .stream()
                 .map(UserImpl::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());//2
     }
 
     @Override
-    public void create(String login, String firstName, String lastName, String address, Integer age, Set<String> properties) {
+    public void create(String login, String firstName, String lastName, String address, Integer age, Set<String> properties, String password, boolean admin, int count) {
         UserDO userToCreate = new UserDO();
         userToCreate.setLogin(login);
         userToCreate.setFirstName(firstName);
@@ -37,6 +40,9 @@ public class UserRepoImpl implements UserRepo {
         userToCreate.setAddress(address);
         userToCreate.setAge(age);
         userToCreate.setProperties(properties);
+        userToCreate.setAdmin(admin);
+        userToCreate.setPassword(password);
+        userToCreate.setCountBooks(count);
         template.tx(em -> em.persist(userToCreate));
     }
 
@@ -50,6 +56,18 @@ public class UserRepoImpl implements UserRepo {
         template.tx(em -> getByLogin(login, em).ifPresent(em::remove));
     }
 
+    @Override
+    public void updateCount(String usr) {
+        template.tx(em -> getByLogin(usr, em).ifPresent(udo -> {
+                udo.setCountBooks(udo.getCountBooks()+1);
+                em.merge(udo);
+            })
+        );
+    }
+
+
+
+
     private Optional<UserDO> getByLogin(String login, EntityManager em) {
         try {
             return Optional.of(em.createNamedQuery(UserDO.GET_BY_LOGIN, UserDO.class).setParameter("login", login)
@@ -58,6 +76,7 @@ public class UserRepoImpl implements UserRepo {
             return Optional.empty();
         }
     }
+
 }
 
 class UserImpl implements User{
@@ -98,6 +117,27 @@ class UserImpl implements User{
     public Set<String> getProperties() {
         return userDO.getProperties();
     }
+
+    @Override
+    public String getPassword() {
+        return userDO.getPassword();
+    }
+
+    @Override
+    public boolean isAdmin() {
+        return userDO.isAdmin();
+    }
+
+    @Override
+    public int getCountBooks() {
+        return userDO.getCountBooks();
+    }
+
+    @Override
+    public Collection<Book> getBooks() {
+        return userDO.getBooks().stream().map(BookImpl::new).collect(Collectors.toList()); //?
+    }
+
 
     UserDO getDO(){
         return userDO;

@@ -18,7 +18,7 @@
 		<db.port>5432</db.port>
 		<db.user>postgres</db.user>
 		<db.password>admin</db.password>
-		<db.name>postgres</db.name>
+		<db.name>karaf</db.name>
 	</properties>
 	
 	<dependencies>
@@ -70,7 +70,8 @@
             <type>xml</type>
             <scope>runtime</scope>
         </dependency>
-    </dependencies>
+
+	</dependencies>
 	
 	<build>
 		<resources>

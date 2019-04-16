@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.3.0" name="training-features">
-    <feature name="training-feature" description="Bundles for karaf training" version="${project.version}">
+<features
+        xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+        name="training-features">
+    <feature
+            name="training-feature"
+            description="Bundles for karaf training"
+            version="${project.version}">
     </feature>
 </features>
