@@ -2,11 +2,35 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <reference id="jpaTemplate" interface="org.apache.aries.jpa.template.JpaTemplate" filter="(osgi.unit.name=PU)"/>
     <reference id="datasource" interface="javax.sql.DataSource"
-               filter="(osgi.jndi.service.name=jdbc/ru.training.model.model-datasource)" />
-    
+               filter="(osgi.jndi.service.name=jdbc/ru.training.model.model-datasource)" /> <!--Import-->
+
     <bean id="userRepo" class="ru.training.karaf.repo.UserRepoImpl">
         <argument ref="jpaTemplate"/>
     </bean>
-    <service ref="userRepo" interface="ru.training.karaf.repo.UserRepo"/>
+    <bean id="bookPriceRepo" class="ru.training.karaf.repo.BookPriceRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="requestLogRepo" class="ru.training.karaf.repo.RequestLogRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="authorRepo" class="ru.training.karaf.repo.AuthorRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="bookRepo" class="ru.training.karaf.repo.BookRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+
+    <bean id="bookDescriptionRepo" class="ru.training.karaf.repo.BookDescriptionRepoImpl">
+        <argument ref="jpaTemplate"/>
+    </bean>
+    <service ref="userRepo" interface="ru.training.karaf.repo.UserRepo"/> <!--export-->
+    <service ref="bookRepo" interface="ru.training.karaf.repo.BookRepo"/> <!--export-->
+    <service ref="bookDescriptionRepo" interface="ru.training.karaf.repo.BookDescriptionRepo"/> <!--export-->
+    <service ref="bookPriceRepo" interface="ru.training.karaf.repo.BookPriceRepo"/> <!--export-->
+    <service ref="authorRepo" interface="ru.training.karaf.repo.AuthorRepo"/> <!--export-->
+    <service ref="requestLogRepo" interface="ru.training.karaf.repo.RequestLogRepo"/> <!--export-->
 
 </blueprint>

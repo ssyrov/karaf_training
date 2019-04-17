@@ -1,17 +1,12 @@
-package ru.training.karaf.rest;
+package ru.training.karaf.rest.user;
 
-import java.util.List;
+import ru.training.karaf.model.Book;
+import ru.training.karaf.rest.user.dto.UserDTO;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
-import ru.training.karaf.rest.dto.UserDTO;
+import java.util.Collection;
+import java.util.List;
 
 @Path("users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,4 +26,8 @@ public interface UserRestService {
     @DELETE
     @Path("{login}")
     void delete(@PathParam("login") String login);
+
+    @GET
+    @Path("{login}/books")
+    Collection<Book> getBooks(@PathParam("login") String login);
 }

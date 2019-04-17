@@ -1,8 +1,11 @@
-package ru.training.karaf.rest.dto;
+package ru.training.karaf.rest.user.dto;
 
-import java.util.Set;
-
+import ru.training.karaf.model.Book;
 import ru.training.karaf.model.User;
+import ru.training.karaf.rest.book.dto.BookDTO;
+
+import java.util.Collection;
+import java.util.Set;
 
 public class UserDTO {
 
@@ -12,7 +15,10 @@ public class UserDTO {
     private Integer age;
     private String address;
     private Set<String> properties;
-
+    private String password;
+    private boolean admin;
+    private int count;
+    private Collection<Book> books;
     public UserDTO() {}
     
     public UserDTO(User user) {
@@ -22,6 +28,10 @@ public class UserDTO {
         age = user.getAge();
         address = user.getAddress();
         properties = user.getProperties();
+        password = user.getPassword();
+        admin = user.isAdmin();
+        count = user.getCountBooks();
+        books = user.getBooks();
     }
 
     public String getLogin() {
@@ -70,6 +80,38 @@ public class UserDTO {
 
     public void setProperties(Set<String> properties) {
         this.properties = properties;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public Collection<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Collection<Book> books) {
+        this.books = books;
     }
 
     @Override
