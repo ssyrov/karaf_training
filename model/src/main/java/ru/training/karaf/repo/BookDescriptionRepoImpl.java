@@ -3,7 +3,10 @@ package ru.training.karaf.repo;
 import org.apache.aries.jpa.template.JpaTemplate;
 import ru.training.karaf.model.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.Collection;
+import java.util.Optional;
 
 public class BookDescriptionRepoImpl implements BookDescriptionRepo {
 
@@ -18,19 +21,31 @@ public class BookDescriptionRepoImpl implements BookDescriptionRepo {
     public void create(long bookId, String description, String date) {
         BookDescriptionDo descriptionToCreate = new BookDescriptionDo();
 
-        //AuthorDo author = template.txExpr(em -> em.createNamedQuery(AuthorDo.GET, AuthorDo.class).setParameter("name", authorName).getSingleResult());
-
-        //descriptionToCreate.setAuthorDos(author);
         descriptionToCreate.setDescription(description);
         descriptionToCreate.setDate(date);
 
-        BookDO bookDO = template.txExpr(em -> em.createNamedQuery(BookDO.GET_BY_ID, BookDO.class).setParameter("id", bookId).getSingleResult());
-        descriptionToCreate.setBook(bookDO);
+        template.tx(em -> {
+            Optional<BookDO> bookDO = getById(bookId, em);
+            if (bookDO.isPresent()) {
+                descriptionToCreate.setBook(bookDO.get());
 
-        bookDO.setDescriptionDo(descriptionToCreate);
-        template.tx(em -> em.merge(bookDO));
-        //template.tx(em -> em.persist(descriptionToCreate));
+                bookDO.get().setDescriptionDo(descriptionToCreate);
 
+                em.merge(bookDO.get());
+            } else {
+               //throw Exception? Book with that ID is not found?
+            }
+
+        });
+
+    }
+
+    private Optional<BookDO> getById(long bookId, EntityManager em) {
+        try {
+            return Optional.of(em.createNamedQuery(BookDO.GET_BY_ID, BookDO.class).setParameter("id", bookId).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
 
@@ -44,17 +59,7 @@ class BookDescriptionImpl implements BookDescription {
     private BookDescriptionDo descriptionDo;
 
     BookDescriptionImpl(BookDescriptionDo descriptionDo) {
-        if (descriptionDo == null) {
-            this.descriptionDo = new BookDescriptionDo() {{
-                this.setDescription("");
-                this.setDate("");
-                this.setId(-1);
-            }
-            };
-        } else {
-            this.descriptionDo = descriptionDo;
-        }
-
+        this.descriptionDo = descriptionDo;
     }
 
     @Override
@@ -71,5 +76,10 @@ class BookDescriptionImpl implements BookDescription {
     @Override
     public String getDate() {
         return descriptionDo.getDate();
+    }
+
+    @Override
+    public boolean isNull() {
+        return descriptionDo == null;
     }
 }

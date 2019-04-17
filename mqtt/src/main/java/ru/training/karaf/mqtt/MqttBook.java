@@ -2,13 +2,20 @@ package ru.training.karaf.mqtt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.*;
+import ru.training.karaf.model.Book;
+import ru.training.karaf.repo.BookPriceRepo;
 import ru.training.karaf.repo.BookRepo;
+import ru.training.karaf.repo.RequestLogRepo;
+
+import java.util.Optional;
 
 public class MqttBook {
 
     private static final String URI = "tcp://localhost:1883";
     private static final String TOPIC = "book_price";
     private BookRepo bookRepo;
+    private BookPriceRepo bookPriceRepo;
+    private RequestLogRepo requestLogRepo;
 
     private static final boolean LOG = true;
 
@@ -28,6 +35,13 @@ public class MqttBook {
         this.bookRepo = bookRepo;
     }
 
+    public void setBookPriceRepo(BookPriceRepo bookPriceRepo) {
+        this.bookPriceRepo = bookPriceRepo;
+    }
+
+    public void setRequestLogRepo(RequestLogRepo requestLogRepo) {
+        this.requestLogRepo = requestLogRepo;
+    }
 
     class BookPriceCallBack implements MqttCallback {
 
@@ -43,7 +57,14 @@ public class MqttBook {
             }
             Message message = new ObjectMapper().readValue(mqttMessage.getPayload(), Message.class);
 
-            bookRepo.changePrice(message.getName(), message.getAuthor(), message.getPrice());
+            Optional<Book> byNameAndAuthor = bookRepo.getByNameAndAuthor(message.getName(), message.getAuthor());
+
+            if (byNameAndAuthor.isPresent()) {
+                //bookRepo.changePrice(message.getName(), message.getAuthor(), message.getPrice());
+                bookPriceRepo.create(message.getPrice(), byNameAndAuthor.get());
+            } else {
+                requestLogRepo.add(message.getName(), message.getAuthor(), message.getPrice());
+            }
 
         }
 

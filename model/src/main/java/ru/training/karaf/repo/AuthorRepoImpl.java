@@ -28,11 +28,14 @@ public class AuthorRepoImpl implements AuthorRepo {
         authorToCreate.setName(name);
         authorToCreate.setAge(age);
 
-        List<BookDO> books1 = template.txExpr(em -> em.createNamedQuery(BookDO.GET_ALL_WHERE_IN_AUTHORS, BookDO.class).setParameter("books", books)
-                .getResultList());
-        authorToCreate.setBooks(books1);
-
-        template.tx(em -> em.merge(authorToCreate));
+        template.tx(em -> {
+            authorToCreate.setBooks(
+                    em.createNamedQuery(BookDO.GET_ALL_WHERE_IN_AUTHORS, BookDO.class)
+                    .setParameter("books", books)
+                    .getResultList()
+            );
+            em.merge(authorToCreate);
+        });
     }
 
     @Override

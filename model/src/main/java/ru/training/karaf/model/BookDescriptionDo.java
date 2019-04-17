@@ -15,7 +15,7 @@ public class BookDescriptionDo {
 
     private String date;
 
-    @OneToOne(mappedBy = "descriptionDo")
+    @OneToOne(mappedBy = "descriptionDo", optional = false)
     private BookDO book;
 
     public BookDescriptionDo() {

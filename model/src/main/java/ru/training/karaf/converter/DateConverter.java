@@ -5,35 +5,24 @@ import javax.persistence.Converter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
 public class DateConverter implements AttributeConverter<LocalDateTime, String> {
+
+    private static final String FORMAT = "yyyy-MM-dd kk:mm:ss";
+
     @Override
     public String convertToDatabaseColumn(LocalDateTime localDateTime) {
-        String format = String.format("%d-%d-%d %d:%d:%d",
-                localDateTime.getYear(),
-                localDateTime.getMonthValue(),
-                localDateTime.getDayOfMonth(),
-                localDateTime.getHour(),
-                localDateTime.getMinute(),
-                localDateTime.getSecond()
-        );
-        return format;
+        return DateTimeFormatter.ofPattern(FORMAT).format(localDateTime);
     }
 
     @Override
     public LocalDateTime convertToEntityAttribute(String s) {
-        String[] s1 = s.split(" ");
-        String[] dateS = s1[0].split("-");
-        String[] timeS = s1[1].split(":");
-        List<Integer> date = Arrays.stream(dateS).map(Integer::parseInt).collect(Collectors.toList());
-        List<Integer> time = Arrays.stream(timeS).map(Integer::parseInt).collect(Collectors.toList());
-        LocalDate localDate = LocalDate.of(date.get(0), date.get(1), date.get(2));
-        LocalTime localTime = LocalTime.of(time.get(0), time.get(1), time.get(2));
+        return LocalDateTime.parse(s, DateTimeFormatter.ofPattern(FORMAT));
 
-        return LocalDateTime.of(localDate, localTime);
     }
 }

@@ -5,10 +5,8 @@ import ru.training.karaf.model.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BookRepoImpl implements BookRepo {
     private JpaTemplate template;
@@ -44,9 +42,11 @@ public class BookRepoImpl implements BookRepo {
         UserDO userDO = template.txExpr(em -> em.createNamedQuery(UserDO.GET_BY_LOGIN, UserDO.class).setParameter("login", usr).getSingleResult());
         bookToCreate.setUsr(userDO);
 
-        Long id = template.txExpr(em -> em.merge(bookToCreate)).getId();
-        BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
-        bookPriceRepo.create(price, id);
+        template.tx(em -> {
+            BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
+            bookPriceRepo.create(price, new BookImpl(em.merge(bookToCreate)));
+        });
+
 
     }
 
@@ -78,19 +78,19 @@ public class BookRepoImpl implements BookRepo {
         }
     }
 
-    @Override
+    /*@Override
     public void changePrice(String name, String author, int price) {
-        Optional<BookDO> bookDO = template.txExpr(em -> getByNameAndAuthor(em, name, author));
-        if (bookDO.isPresent()) {
-            BookDO book = bookDO.get();
+        //Optional<BookDO> bookDO = template.txExpr(em -> getByNameAndAuthor(em, name, author));
+        //if (bookDO.isPresent()) {
+            //BookDO book = bookDO.get();
             BookPriceRepoImpl bookPriceRepo = new BookPriceRepoImpl(template);
             bookPriceRepo.create(price, book.getId());
-        } else {
-            RequestLogRepoImpl requestLogRepo = new RequestLogRepoImpl(template);
-            requestLogRepo.add(name, author, price);
-        }
+        //} else {
+            //RequestLogRepoImpl requestLogRepo = new RequestLogRepoImpl(template);
+            //requestLogRepo.add(name, author, price);
+        //}
 
-    }
+    }*/
 
     @Override
     public List<BookPrice> getPrices(long bookId) {
@@ -98,15 +98,17 @@ public class BookRepoImpl implements BookRepo {
         return repo.getByBook(bookId);
     }
 
-    private Optional<BookDO> getByNameAndAuthor(EntityManager em, String name, String author) {try {
-        return Optional.of(em.createNamedQuery(BookDO.GET_BY_NAME_AND_AUTHOR, BookDO.class)
-                .setParameter("name", name)
-                .setParameter("author", author)
-                .getSingleResult());
-    } catch (NoResultException e) {
-        return Optional.empty();
-    }
-
+    @Override
+    public Optional<Book> getByNameAndAuthor(String name, String author) {
+        try {
+            Optional<BookDO> bookDO = Optional.of(template.txExpr(em -> em.createNamedQuery(BookDO.GET_BY_NAME_AND_AUTHOR, BookDO.class)
+                    .setParameter("name", name)
+                    .setParameter("author", author)
+                    .getSingleResult()));
+            return bookDO.map(BookImpl::new);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }
 
@@ -139,9 +141,7 @@ class BookImpl implements Book {
 
     @Override
     public BookDescription getBookDescription() {
-        BookDescriptionImpl desc = new BookDescriptionImpl(bookDO.getDescriptionDo());
-        //opt
-        return desc; //?
+        return new BookDescriptionImpl(bookDO.getDescriptionDo());
     }
 
     @Override
@@ -151,7 +151,7 @@ class BookImpl implements Book {
 
     @Override
     public Collection<String> getAuthorNames() {
-        return bookDO.getAuthors().stream().map(AuthorImpl::new).map(a -> a.getName()).collect(Collectors.toList());
+        return bookDO.getAuthors().stream().map(AuthorImpl::new).map(AuthorImpl::getName).collect(Collectors.toList());
     }
 
     @Override
@@ -169,8 +169,13 @@ class BookImpl implements Book {
 
     @Override
     public int getPrice() {
-        Optional<BookPriceDO> bookPriceDO = bookDO.getPrice().stream().max(Comparator.comparing(o -> (int) o.getId()));
-        return bookPriceDO.get().getPrice();
 
+        try {
+            Optional<BookPriceDO> bookPriceDO = bookDO.getPrice().stream().max(Comparator.comparing(BookPriceDO::getDate));
+            return bookPriceDO.get().getPrice();
+        } catch (NoResultException e) {
+            return 0;
+
+        }
     }
 }

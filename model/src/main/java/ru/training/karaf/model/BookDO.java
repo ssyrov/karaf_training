@@ -53,8 +53,7 @@ public class BookDO {
     )
     private Collection<AuthorDo> authors;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
-    //@OrderColumn(name = "date")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book", fetch = FetchType.EAGER)
     private List<BookPriceDO> prices;
 
     public BookDO() {}
@@ -88,7 +87,7 @@ public class BookDO {
     }
 
     public BookDescriptionDo getDescriptionDo() {
-        return descriptionDo;
+        return descriptionDo;//2
     }
 
     public void setDescriptionDo(BookDescriptionDo descriptionDo) {

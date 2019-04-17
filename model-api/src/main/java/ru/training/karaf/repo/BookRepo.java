@@ -15,7 +15,8 @@ public interface BookRepo {
     Optional<? extends Book> get(long id);
     void delete(String name);
     List<? extends Book> getByUsr(String usr);
-    void changePrice(String name, String author, int price);
+    //void changePrice(String name, String author, int price);
 
     List<BookPrice> getPrices(long bookId);
+    Optional<Book> getByNameAndAuthor(String name, String author);
 }

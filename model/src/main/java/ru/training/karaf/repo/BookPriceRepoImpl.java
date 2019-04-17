@@ -29,21 +29,20 @@ public class BookPriceRepoImpl implements BookPriceRepo {
     }
 
     @Override
-    public void create(int price, long bookId) {
+    public void create(int price, Book book) {
         BookPriceDO bookPriceToCreate = new BookPriceDO();
         bookPriceToCreate.setPrice(price);
 
-        //Timestamp date = new Timestamp(System.currentTimeMillis());
         LocalDateTime date = LocalDateTime.now();
         bookPriceToCreate.setDate(date);
-        //bookPriceToCreate.setDate(0);
 
-        BookDO bookDO = template.txExpr(em -> em.find(BookDO.class, bookId));
+        BookDO bookDO = book.unWrap(BookDO.class);
         bookDO.getPrice().add(bookPriceToCreate);
         bookPriceToCreate.setBook(bookDO);
-        template.tx(em -> em.persist(bookPriceToCreate));
-        template.tx(em -> em.merge(bookDO));
-        //template.tx(em -> em.merge(bookPriceToCreate));
+        template.tx(em -> {
+            em.persist(bookPriceToCreate);
+            em.merge(bookDO);
+        });
     }
 
     @Override

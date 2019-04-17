@@ -1,9 +1,9 @@
 package ru.training.karaf.rest.book.dto;
 
-import ru.training.karaf.model.Author;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import ru.training.karaf.model.Book;
 import ru.training.karaf.model.BookDescription;
-import ru.training.karaf.model.Color;
+import ru.training.karaf.rest.book.serializer.DescriptionSerialize;
 
 import java.util.Collection;
 
@@ -12,6 +12,8 @@ public class BookDTO {
     private long id;
     private String name;
     private String usr;
+
+    @JsonSerialize(using = DescriptionSerialize.class)
     private BookDescription description;
     private Collection<String> authors;
     private int price;
@@ -31,27 +33,7 @@ public class BookDTO {
     }
 
     public BookDescription getDescription() {
-        if (description == null) {
-            return new BookDescription() {
-                @Override
-                public long getId() {
-                    return -1;
-                }
-
-                @Override
-                public String getDescription() {
-                    return "";
-                }
-
-                @Override
-                public String getDate() {
-                    return "";
-                }
-            };
-        } else {
-
-            return description;
-        }
+        return description;
     }
 
     public Collection<String> getAuthors() {

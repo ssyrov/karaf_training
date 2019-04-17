@@ -1,6 +1,5 @@
 package ru.training.karaf.rest;
 
-import ru.training.karaf.model.User;
 import ru.training.karaf.repo.BookDescriptionRepo;
 import ru.training.karaf.repo.BookRepo;
 import ru.training.karaf.repo.UserRepo;

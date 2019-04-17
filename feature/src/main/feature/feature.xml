@@ -7,4 +7,5 @@
             description="Bundles for karaf training"
             version="${project.version}">
     </feature>
+
 </features>

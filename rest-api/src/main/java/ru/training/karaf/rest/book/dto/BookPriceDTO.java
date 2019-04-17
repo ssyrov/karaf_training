@@ -2,6 +2,8 @@ package ru.training.karaf.rest.book.dto;
 
 import ru.training.karaf.model.BookPrice;
 
+import java.time.format.DateTimeFormatter;
+
 
 public class BookPriceDTO {
     private String date;
@@ -11,15 +13,8 @@ public class BookPriceDTO {
     }
 
     public BookPriceDTO(BookPrice bookPrice) {
-        String format = String.format("%d-%d-%d %d:%d:%d",
-                bookPrice.getDate().getYear(),
-                bookPrice.getDate().getMonthValue(),
-                bookPrice.getDate().getDayOfMonth(),
-                bookPrice.getDate().getHour(),
-                bookPrice.getDate().getMinute(),
-                bookPrice.getDate().getSecond()
-        );
-        this.date = format;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
+        this.date = formatter.format(bookPrice.getDate());
         this.price = bookPrice.getPrice();
     }
 

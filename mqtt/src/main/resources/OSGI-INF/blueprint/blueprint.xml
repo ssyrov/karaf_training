@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <reference id="bookRepo" interface="ru.training.karaf.repo.BookRepo"/>
+    <reference id="bookPriceRepo" interface="ru.training.karaf.repo.BookPriceRepo"/>
+    <reference id="requestLogRepo" interface="ru.training.karaf.repo.RequestLogRepo"/>
 
     <bean id="mqttBookBean" class="ru.training.karaf.mqtt.MqttBook">
         <property name="bookRepo" ref="bookRepo"/>
+        <property name="bookPriceRepo" ref="bookPriceRepo"/>
+        <property name="requestLogRepo" ref="requestLogRepo"/>
     </bean>
 
 </blueprint>

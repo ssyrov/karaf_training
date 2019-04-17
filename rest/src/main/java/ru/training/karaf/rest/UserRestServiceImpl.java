@@ -8,6 +8,9 @@ import ru.training.karaf.rest.user.dto.UserDTO;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +32,28 @@ public class UserRestServiceImpl implements UserRestService {
 
     @Override
     public void create(UserDTO user) {
-        repo.create(user.getLogin(), user.getFirstName(), user.getLastName(), user.getAddress(), user.getAge(), user.getProperties(), user.getPassword(), user.isAdmin(), user.getCount());
+        repo.create(user.getLogin(), user.getFirstName(), user.getLastName(), user.getAddress(), user.getAge(), user.getProperties(), customSHA(user.getPassword()), user.isAdmin(), user.getCount());
+    }
+
+    private String customSHA(String pswd) {
+        MessageDigest messageDigest;
+        byte[] digest = new byte[0];
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.reset();
+            messageDigest.update(pswd.getBytes());
+            digest = messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        BigInteger bigInt = new BigInteger(1, digest);
+        String md5Hex = bigInt.toString(16);
+
+        while( md5Hex.length() < 32 ){
+            md5Hex = "0" + md5Hex;
+        }
+
+        return md5Hex;
     }
 
     @Override
