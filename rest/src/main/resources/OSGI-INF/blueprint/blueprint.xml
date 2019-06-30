@@ -4,17 +4,39 @@
 >
 
     <reference id="userRepo" interface="ru.training.karaf.repo.UserRepo"/>
+    <reference id="bookRepo" interface="ru.training.karaf.repo.BookRepo"/>
+    <reference id="bookDescriptionRepo" interface="ru.training.karaf.repo.BookDescriptionRepo"/>
+    <reference id="authorRepo" interface="ru.training.karaf.repo.AuthorRepo"/>
+    <reference id="requestLogRepo" interface="ru.training.karaf.repo.RequestLogRepo"/>
 
+    <bean id="bookRestServiceBean" class="ru.training.karaf.rest.BookRestServiceImpl">
+        <property name="bookRepo"  ref="bookRepo"/>
+        <property name="userRepo"  ref="userRepo"/>
+        <property name="bookDescriptionRepo"  ref="bookDescriptionRepo"/>
+    </bean>
     <bean id="userRestServiceBean" class="ru.training.karaf.rest.UserRestServiceImpl">
         <property name="repo"  ref="userRepo"/>
     </bean>
+    <bean id="authRestServiceBean" class="ru.training.karaf.rest.AuthRestServiceImpl">
+    </bean>
+    <bean id="authorRestServiceBean" class="ru.training.karaf.rest.AuthorRestServiceImpl">
+        <property name="repo"  ref="authorRepo"/>
+    </bean>
+    <bean id="requestLogRestServiceBean" class="ru.training.karaf.rest.RequestLogRestServiceImpl">
+        <property name="repo"  ref="requestLogRepo"/>
+    </bean>
+
 
     <!-- CXF -->
     <jaxrs:server id="restServer" address="/rest">
         <jaxrs:serviceBeans>
             <ref component-id="userRestServiceBean"/>
+            <ref component-id="bookRestServiceBean"/>
+            <ref component-id="authRestServiceBean"/>
+            <ref component-id="authorRestServiceBean"/>
+            <ref component-id="requestLogRestServiceBean"/>
         </jaxrs:serviceBeans>
-                <jaxrs:providers>
+        <jaxrs:providers>
             <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
             <bean class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper"/>
         </jaxrs:providers>

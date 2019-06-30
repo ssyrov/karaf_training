@@ -1,26 +1,21 @@
 package ru.training.karaf.model;
 
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.Set;
-
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
     @NamedQuery(name = UserDO.GET_ALL, query = "SELECT u FROM UserDO AS u"),
-    @NamedQuery(name = UserDO.GET_BY_LOGIN, query = "SELECT u FROM UserDO AS u WHERE u.login = :login")
+    @NamedQuery(name = UserDO.GET_BY_LOGIN, query = "SELECT u FROM UserDO AS u WHERE u.login = :login"),
+    @NamedQuery(name = UserDO.UPDATE_COUNT_BY_LOGIN, query = "UPDATE UserDO u SET u.countBooks=:count WHERE u.login=:login"),
+
 })
 public class UserDO {
     public static final String GET_ALL = "Users.getAll";
     public static final String GET_BY_LOGIN = "Users.getByLogin";
-    
+    public static final String UPDATE_COUNT_BY_LOGIN = "Users.updateCountByLogin";
+
     @Id
     @GeneratedValue
     private Long id;
@@ -32,6 +27,16 @@ public class UserDO {
     private String login;
     private Integer age;
     private String address;
+    @Column(name = "pswd")
+    private String password;
+    @Column(name = "adm")
+    private boolean admin;
+
+    @OneToMany(mappedBy = "usr", fetch = FetchType.EAGER)
+    private Collection<BookDO> books;
+
+    @Column(name = "count_books")
+    private int countBooks;
 
     @ElementCollection
     @CollectionTable(name = "user_properties",
@@ -39,6 +44,7 @@ public class UserDO {
     private Set<String> properties;
 
     public UserDO() {}
+
 
     public Long getId() {
         return id;
@@ -82,6 +88,39 @@ public class UserDO {
     public void setProperties(Set<String> properties) {
         this.properties = properties;
     }
+
+    public int getCountBooks() {
+        return countBooks;
+    }
+
+    public void setCountBooks(int countBooks) {
+        this.countBooks = countBooks;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public Collection<BookDO> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Collection<BookDO> books) {
+        this.books = books;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
